@@ -6,6 +6,7 @@ __author__ = 'Ramon Bartl <ramon.bartl@googlemail.com>'
 __docformat__ = 'plaintext'
 
 import logging
+from plone import api
 
 from zope import component
 
@@ -21,6 +22,8 @@ from decorators import handle_errors
 from interfaces import IAPI
 from interfaces import IRouter
 
+from plone.jsonapi.browser.helpers import apply_ska_authentication
+
 logger = logging.getLogger("plone.jsonapi")
 
 
@@ -34,7 +37,7 @@ class API(BrowserView):
         self.request = request
 
         self.traverse_subpath = []
-
+        apply_ska_authentication(context, request)
 
     def publishTraverse(self, request, name):
         """ get's called before __call__ for each path name
@@ -46,6 +49,9 @@ class API(BrowserView):
     def dispatch(self):
         """ dispatches the given subpath to the router
         """
+        current_user = api.user.get_current()
+        logger.info("current_user: {0}".format(current_user))
+
         path = "/".join(self.traverse_subpath)
         for name, router in component.getUtilitiesFor(IRouter):
             router.initialize(self.context, self.request)
