@@ -44,14 +44,15 @@ def get_member(request):
         member = api.user.get(username)
         return member
 
-def apply_ska_authentication(context, request):
+def apply_ska_authentication(context, request=None):
     """
     Applies `ska` authentication where necessary. Checks if `valid_until`, `auth_user` and `signature` GET
     variables are present in the URL and applies the authentication then.
 
     :FIXME: Move this elsewhere if you know a better place.
     """
-    request = getRequest()
+    if not request:
+        request = getRequest()
 
     if request.get('valid_until') and request.get('auth_user') and request.get('signature'):
         logger.info("Applying `ska` authentication")
